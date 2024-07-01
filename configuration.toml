@@ -1,0 +1,51 @@
+# 数据源配置
+[SourceDataBase]
+# 数据来源
+DataSource = "mockup" # mockup or db
+# 当为db类型时，数据库配置
+db.driver = "kingbase" # 数据驱动类型 mssql,mysql,kingbase,dm
+db.host = "127.0.0.1"
+db.port = 5432
+db.user = "postgres"
+db.password = "postgres"
+db.dbname = "postgres"
+
+# 当为faker类型时，mock数据配置
+mockup.year = [2022,2023]
+mockup.age = [0,108]
+
+# 任务设置
+[Task]
+# 线程
+IfMultiThread = true
+# 线程数
+ThreadNum = 10
+# 数据量
+DataSize = 5000
+
+# 目标数据库配置
+[DestinationDataBase]
+db.driver = "dm" # 数据驱动类型 mssql,mysql,kingbase,dm
+db.host = "192.168.1.35"
+db.port = 5236
+db.user = "SYSDBA"
+db.password = "123456789"
+db.dbname = "" # 根据实际情况填写，某些数据库不需要填写
+
+
+# 日志设置
+[Log]
+# 输出方式
+#Output = "file" # console or file
+Output = "console" # console or file
+# 日志文件路径（当Output=file时生效）
+FilePath = "./logs/data_migration.log"
+# 日志级别
+Level = "INFO" # DEBUG,INFO,WARN,ERROR,FATAL,CRITICAL
+# 日志文件大小（当Output=file时生效）
+FileSize = 10
+# 日志文件保留天数
+FileCount = 7
+# 日志追加方式
+AppendType = "w" # a or w, a表示追加，w表示覆盖
+
