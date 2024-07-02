@@ -1,5 +1,5 @@
 """
-@File : config.py
+@File : config.py 解析配置文件
 @Date : 2024/6/27 下午3:02
 @Author: 九层风（YePing Zhang）
 @Contact : yeahcheung213@163.com
@@ -7,12 +7,10 @@
 import toml
 import os
 
-
 # 为避免其他次级目录的访问，需要设置模块所在的完整路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 file_path = os.path.join(current_dir, "configuration.toml")
-
 
 
 def parse_config():
@@ -22,7 +20,7 @@ def parse_config():
     return data
 
 
-CONFIG = parse_config()
+GLOBAL_CONFIG = parse_config()
 
 if __name__ == "__main__":
-    print(CONFIG)
+    print(GLOBAL_CONFIG)

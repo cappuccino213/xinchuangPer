@@ -1,5 +1,5 @@
 """
-@File : main.py
+@File : main.py 程序主入口
 @Date : 2024/7/1 下午1:25
 @Author: 九层风（YePing Zhang）
 @Contact : yeahcheung213@163.com
@@ -7,16 +7,16 @@
 
 from log_config import logger
 from db_drivers.dm import DM
-from config import CONFIG
+from config import GLOBAL_CONFIG
 from mock_data import MockData
 
 
 def main():
     # 目标数据库
-    da_meng = DM(CONFIG["DestinationDataBase"]["db"]["user"],
-                 CONFIG["DestinationDataBase"]["db"]["password"],
-                 CONFIG["DestinationDataBase"]["db"]["host"],
-                 CONFIG["DestinationDataBase"]["db"]["port"])
+    da_meng = DM(GLOBAL_CONFIG["DestinationDataBase"]["db"]["user"],
+                 GLOBAL_CONFIG["DestinationDataBase"]["db"]["password"],
+                 GLOBAL_CONFIG["DestinationDataBase"]["db"]["host"],
+                 GLOBAL_CONFIG["DestinationDataBase"]["db"]["port"])
 
     # 生成mock数据
     # 解析表结构
@@ -25,7 +25,7 @@ def main():
     data_to_insert = []
     # TODO 参数化处理：1、表名 2、生成数量 3、数据库驱动选择
     # TODO 带入配置文件的执行策略，加入多线程
-    for row in range(10):
+    for row in range(5):
         # row_data = {}
         row_data = []
         for column in columns:

@@ -1,5 +1,5 @@
 """
-@File : dm.py
+@File : dm.py 达梦数据驱动
 @Date : 2024/6/27 下午4:25
 @Author: 九层风（YePing Zhang）
 @Contact : yeahcheung213@163.com
@@ -49,18 +49,29 @@ class DM:
 
     # 批量绑定参数执行
     def execute_batch(self, sql, sequence_of_params):
-        conn = self.connect()
-        cursor = conn.cursor()
-        cursor.executemany(sql, sequence_of_params)
-        # rows = cursor.fetchall()
-        conn.commit()
-        cursor.close()
-        conn.close()
-        # return rows
-        # TODO 去掉多余的语句
+        # 确保参数非空，以处理边界条件
+        if not sequence_of_params:
+            logger.warning("sequence_of_params为空，不执行任何操作")
+            return []
+        try:
+            # 用with语句前处理上下文，防止忘记关闭连接
+            with self.connect() as conn:
+                with conn.cursor() as cursor:
+                    cursor.executemany(sql, sequence_of_params)
+                    rows = cursor.fetchall
+                    conn.commit()
+            return rows
+        except Exception as e:
+            logger.error(f"执行sql语句失败，错误信息：{e}")
+            raise e
 
     # 分析表结构
-    def get_table_structure(self, owner, table_name):
+    def get_table_structure(self, schema, table_name):
+        """
+        :param schema: 模式
+        :param table_name: 表名
+        :return: [字段名，字段类型，字段长度，是否为空] eg：[('UserUID', 'VARCHAR', Decimal('36'), 'N'), ('Account', 'VARCHAR', Decimal('64'), 'N')]
+        """
         sql_statement = """SELECT column_name, 
                            data_type, 
                            data_length, 
@@ -68,8 +79,8 @@ class DM:
                         FROM DBA_TAB_COLUMNS
                         WHERE TABLE_NAME = (?) 
                           AND OWNER = (?)"""
-        columns = self.execute_with_params(sql_statement, (table_name, owner))
-        logger.info(columns)
+        columns = self.execute_with_params(sql_statement, (table_name, schema))
+        # logger.debug(columns)
         return columns
 
 

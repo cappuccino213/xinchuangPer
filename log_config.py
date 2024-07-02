@@ -1,5 +1,5 @@
 """
-@File : __init__.py
+@File : log_config.py 日志设置模块
 @Date : 2024/6/27 上午11:27
 @Author: 九层风（YePing Zhang）
 @Contact : yeahcheung213@163.com
@@ -9,7 +9,7 @@ import logging
 import datetime
 import os
 
-from config import CONFIG
+from config import GLOBAL_CONFIG
 from logging.handlers import RotatingFileHandler
 
 """这是简易的日志配置
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 # 为避免其他次级目录的访问，需要设置模块所在的完整路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
-log_file_path = os.path.join(current_dir, CONFIG["Log"]["FilePath"])
+log_file_path = os.path.join(current_dir, GLOBAL_CONFIG["Log"]["FilePath"])
 
 
 """常规日志配置"""
@@ -37,19 +37,19 @@ def init_logger():
     # 创建一个 logger
     root_logger = logging.getLogger(__name__)
     # 设置日志级别
-    root_logger.setLevel(CONFIG['Log']['Level'])
+    root_logger.setLevel(GLOBAL_CONFIG['Log']['Level'])
 
     # 根据日志输出类型创建不同的输出渠道
-    if CONFIG['Log']['Output'] == 'console':
+    if GLOBAL_CONFIG['Log']['Output'] == 'console':
         log_handler = logging.StreamHandler()
-    elif CONFIG['Log']['Output'] == 'file':
+    elif GLOBAL_CONFIG['Log']['Output'] == 'file':
         now = datetime.datetime.now()
         # 添加按日期和文件大小的日志处理器
         log_handler = RotatingFileHandler(filename=f'{log_file_path}_{now.strftime("%Y-%m-%d")}.log',
-                                          mode=CONFIG['Log']['AppendType'],
+                                          mode=GLOBAL_CONFIG['Log']['AppendType'],
                                           encoding='utf-8',
-                                          maxBytes=1024 * 1024 * CONFIG['Log']['FileSize'],
-                                          backupCount=CONFIG['Log']['FileCount'])
+                                          maxBytes=1024 * 1024 * GLOBAL_CONFIG['Log']['FileSize'],
+                                          backupCount=GLOBAL_CONFIG['Log']['FileCount'])
     else:
         log_handler = logging.StreamHandler()  # 默认或填写错误时，输出到控制台
         root_logger.warning("日志输出类型配置错误或未配置，将默认输出到控制台")
