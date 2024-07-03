@@ -6,6 +6,7 @@
 """
 import string
 import random
+import uuid
 
 import mimesis
 from mimesis import Locale
@@ -23,9 +24,12 @@ class MockData:
 
     # varchar生成器
     def generate_varchar(self, column_length):
-        if column_length >= self.varchar_max_length:
-            column_length = self.varchar_max_length
-        return "".join(random.choice(string.ascii_letters + string.digits) for _ in range(int(column_length)))
+        if column_length == 36:
+            return str(uuid.uuid4()).upper()
+        else:
+            if column_length >= self.varchar_max_length:
+                column_length = self.varchar_max_length
+            return "".join(random.choice(string.ascii_letters + string.digits) for _ in range(int(column_length)))
 
     # int生成器
     def generate_int(self):
@@ -36,6 +40,7 @@ class MockData:
         mimesis_gen = mimesis.Generic(Locale.ZH)
         data_generators = {
             "varchar": lambda: self.generate_varchar(column_length),
+            # "varchar": lambda: self.generate_varchar(4),
             "bit": lambda: random.choice([0, 1]),
             "int": lambda: self.generate_int(),
             "integer": lambda: self.generate_int(),
@@ -45,10 +50,10 @@ class MockData:
             "double": lambda: random.uniform(0, self.int_max),
             "decimal": lambda: random.uniform(0, self.int_max),
             "numeric": lambda: random.uniform(0, self.int_max),
-            "date": lambda: mimesis_gen.datetime.date(),
-            "datetime": lambda: mimesis_gen.datetime.datetime(),
-            "time": lambda: mimesis_gen.datetime.time(),
-            "timestamp": lambda: mimesis_gen.datetime.datetime()
+            "date": lambda: mimesis_gen.datetime.date().strftime("%Y-%m-%d"),
+            "datetime": lambda: mimesis_gen.datetime.datetime().strftime("%Y-%m-%d %H:%M:%S"),
+            "time": lambda: mimesis_gen.datetime.time().strftime("%H:%M:%S"),
+            "timestamp": lambda: mimesis_gen.datetime.datetime().strftime("%Y-%m-%d %H:%M:%S")
         }
 
         # 获取数据生成函数
@@ -67,6 +72,7 @@ class MockData:
             "smallint": lambda: self.generate_int(),
         }
         # TODO 完善业务模式数据生成
+
 
 # 从数据库中获取数据
 class SourceData:

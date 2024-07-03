@@ -35,13 +35,13 @@ db.tables = ["UserMst","UserRoleMst"]
 
 # 任务设置
 [Task]
+# 每张表生成数据量
+DataSize = 5
+
 # 线程
 IfMultiThread = true
 # 线程数
 ThreadNum = 10
-# 生成数据量
-DataSize = 5
-
 
 
 
@@ -55,7 +55,7 @@ FilePath = "./logs/data_migration.log"
 # 日志级别
 Level = "DEBUG" # DEBUG,INFO,WARN,ERROR,FATAL,CRITICAL
 # 日志文件大小（当Output=file时生效）
-FileSize = 10
+FileSize = 0 # 当FileSize=0时，日志的覆盖（w）才会触发，其他情况日志都会追加
 # 日志文件保留天数
 FileCount = 7
 # 日志追加方式

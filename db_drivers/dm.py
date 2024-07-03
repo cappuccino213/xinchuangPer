@@ -19,6 +19,7 @@ class DM:
         self.password = password
         self.host = host
         self.port = port
+        self.conn = dmPython.connect(user=self.user, password=self.password, host=self.host, port=self.port)
 
     # 建立连接
     def connect(self):
@@ -27,24 +28,23 @@ class DM:
 
     # 执行sql语句
     def execute(self, sql):
-        conn = self.connect()
-        cursor = conn.cursor()
+        cursor = self.conn.cursor()
         cursor.execute(sql)
         rows = cursor.fetchall()
-        conn.commit()
+        self.conn.commit()
         cursor.close()
-        conn.close()
+        self.conn.close()
         return rows
 
     # 带参数执行sql语句
     def execute_with_params(self, sql, params=None):
-        conn = self.connect()
-        cursor = conn.cursor()
+        # conn = self.connect()
+        cursor = self.conn.cursor()
         cursor.execute(sql, params)
         rows = cursor.fetchall()
-        conn.commit()
+        self.conn.commit()
         cursor.close()
-        conn.close()
+        self.conn.close()
         return rows
 
     # 批量绑定参数执行
@@ -55,11 +55,11 @@ class DM:
             return []
         try:
             # 用with语句前处理上下文，防止忘记关闭连接
-            with self.connect() as conn:
-                with conn.cursor() as cursor:
+            with self.connect() as connect:  # TODO 这个地方为什么不能用初始化的self.conn
+                with connect.cursor() as cursor:
                     cursor.executemany(sql, sequence_of_params)
                     rows = cursor.fetchall
-                    conn.commit()
+                    connect.commit()
             return rows
         except Exception as e:
             logger.error(f"执行sql语句失败，错误信息：{e}")
