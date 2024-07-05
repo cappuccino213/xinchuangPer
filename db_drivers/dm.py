@@ -4,6 +4,8 @@
 @Author: 九层风（YePing Zhang）
 @Contact : yeahcheung213@163.com
 """
+from datetime import datetime
+
 from log_config import logger
 
 # 达梦数据库连接，不同的python版本对应不同的驱动
@@ -19,48 +21,52 @@ class DM:
         self.password = password
         self.host = host
         self.port = port
-        self.conn = dmPython.connect(user=self.user, password=self.password, host=self.host, port=self.port)
 
     # 建立连接
     def connect(self):
         conn = dmPython.connect(user=self.user, password=self.password, host=self.host, port=self.port)
         return conn
 
-    # 执行sql语句
-    def execute(self, sql):
-        cursor = self.conn.cursor()
-        cursor.execute(sql)
-        rows = cursor.fetchall()
-        self.conn.commit()
-        cursor.close()
-        self.conn.close()
-        return rows
-
     # 带参数执行sql语句
     def execute_with_params(self, sql, params=None):
-        # conn = self.connect()
-        cursor = self.conn.cursor()
-        cursor.execute(sql, params)
-        rows = cursor.fetchall()
-        self.conn.commit()
-        cursor.close()
-        self.conn.close()
-        return rows
+        if not params:
+            logger.warning("params为空，不执行任何操作")
+            return []
+        try:
+            with self.connect() as connect:
+                with connect.cursor() as cursor:
+                    cursor.execute(sql, params)
+                    rows = cursor.fetchall()
+                    connect.commit()
+            return rows
+        except Exception as e:
+            logger.error(f"执行sql语句失败，错误信息：{e}")
+            raise e
+
+    @staticmethod
+    def concatenate_insert_sql(db_schema, table_name, column_list):
+        columns_str = ",".join(column_list)
+        placeholder = ",".join(["?"] * len(column_list))
+        sql_statement = f"INSERT INTO {db_schema}.{table_name} ({columns_str}) VALUES ({placeholder})"
+        logger.debug(sql_statement)
+        return sql_statement
 
     # 批量绑定参数执行
     def execute_batch(self, sql, sequence_of_params):
+        # 执行耗时计算
+        execute_begin_time = datetime.now()
         # 确保参数非空，以处理边界条件
         if not sequence_of_params:
             logger.warning("sequence_of_params为空，不执行任何操作")
             return []
         try:
             # 用with语句前处理上下文，防止忘记关闭连接
-            with self.connect() as connect:  # TODO 这个地方为什么不能用初始化的self.conn
+            with self.connect() as connect:
                 with connect.cursor() as cursor:
                     cursor.executemany(sql, sequence_of_params)
-                    rows = cursor.fetchall
                     connect.commit()
-            return rows
+            logger.info(f"【执行sql语句成功，耗时：{datetime.now() - execute_begin_time}】")
+            return True
         except Exception as e:
             logger.error(f"执行sql语句失败，错误信息：{e}")
             raise e
@@ -80,10 +86,11 @@ class DM:
                         WHERE TABLE_NAME = (?) 
                           AND OWNER = (?)"""
         columns = self.execute_with_params(sql_statement, (table_name, schema))
-        # logger.debug(columns)
+        logger.debug(columns)
         return columns
 
 
 if __name__ == "__main__":
     dm = DM('SYSDBA', '123456789', '192.168.1.35', 5236)
-    dm.get_table_structure('IMCIS', 'UserMst')
+    # dm.get_table_structure('IMCIS', 'UserMst')
+    dm.concatenate_insert_sql('IMCIS', 'ExamRequest',["ExamUID","PatientID"])

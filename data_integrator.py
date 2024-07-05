@@ -5,6 +5,7 @@
 @Contact : yeahcheung213@163.com
 """
 import threading
+from datetime import datetime
 
 from config import GLOBAL_CONFIG
 from db_drivers.dm import DM
@@ -15,12 +16,11 @@ from mock_data import MockData
 
 class DataIntegrator:
     def __init__(self):
-        # 获取配置
-        # 数据原配置
+        # 数据源配置
         self.data_src_config = GLOBAL_CONFIG.get("DataSource")
         # 目标数据库配置
         self.dst_db_config = GLOBAL_CONFIG.get("DestinationDataBase").get("db")
-        self.dst_db_schema = self.dst_db_config.get("dbname")
+        self.dst_db_schema = self.dst_db_config.get("dbschema")
         self.dst_db_tables = self.dst_db_config.get("tables")
         # 任务配置
         self.task_config = GLOBAL_CONFIG.get("Task")
@@ -54,50 +54,70 @@ class DataIntegrator:
         cols = db_instance.get_table_structure(self.dst_db_schema, db_table)
 
         # 生成单条数据函数
-        def cols_data_generator():
+        def cols_data_generator(table_structure,mockup_instance):
+            """
+            :table_structure: 表结构
+            :return: 生成数据行，待插入的数据列名
+            """
             cols_data = []  # 列数据（字段值）
-            fields_data = []
-            for col in cols:
-                gen_mode = self.data_src_config.get("mockup").get("model")
+            fields_name = []
+            gen_mode = self.data_src_config.get("mockup").get("model")
+            # mock_data_instance = MockData()
+            for col in table_structure:
                 if gen_mode == "simple":
                     if col[3].lower() in ("n", "no"):  # 只添加不为空的字段
-                        col_data = MockData().data_generator_simple(col[1], col[2])
-                        # 若生成的数据不为空，则添加到列数据中
-                        if col_data != "":
-                            cols_data.append(col_data)
-                            fields_data.append(col[0])
+                        # col_value = MockData().data_generator_simple(col[1], col[2])
+                        col_value = mockup_instance.data_generator_simple(col[1], col[2])
+                        # 若生成的数据不为空字符时，则添加到列数据中,以保持列和值的数量匹配
+                        if col_value != "":
+                            cols_data.append(col_value)
+                            fields_name.append(col[0])
                 else:
-                    col_data = MockData().data_generator_business(col[0], col[1], col[2], col[3])
+                    col_value = mockup_instance.data_generator_business(col[0], col[1], col[2], col[3])
                     # 若生成的数据不为空，则添加到列数据中
-                    if col_data != "":
-                        cols_data.append(col_data)
-                        fields_data.append(col[0])
-            return cols_data, fields_data
+                    if col_value != "":
+                        cols_data.append(col_value)
+                        fields_name.append(col[0])
+            return cols_data, fields_name
 
-        # 生成指定数量
-        rows_data = []  # 行数据 （每一条数据表记录）
+        # 生成指定数量的数据行，和数据列名
+        rows_data = []  # 行数据
         row_amount = self.task_config.get("DataSize")
-        logger.info(f"1、表{db_table}正在生成{row_amount}条数据...")
+        # 创建一个mock实例
+        mock_data_instance = MockData()
+        # 耗时计算
+        generate_start_time = datetime.now()
+        logger.info(f"[1]表{db_table}正在生成{row_amount}条数据...")
+        # 数据列名
+        column_name_list = []
         for row in range(row_amount):
             logger.debug(f"正在生成第{row}条数据...")
-            gen_col_data = cols_data_generator()[0]
-            logger.debug(f"第{row}条数据：{gen_col_data}")
-            rows_data.append(gen_col_data)
-        logger.info(f"生成数据成功，共生成{len(rows_data)}条数据")
+            # 分别获取数据行，获取数据列名（每行都一样，获取一次即可）
+            gen_col_data = cols_data_generator(cols, mock_data_instance)
+            col_data = gen_col_data[0]
+            if len(column_name_list) == 0:
+                column_name_list = gen_col_data[1]
+            logger.debug(f"表{db_table}-第{row}条数据：{gen_col_data}")
+            rows_data.append(col_data)
+        logger.info(f"表{db_table}生成数据成功，共生成{len(rows_data)}条数据")
+        logger.info(f"表{db_table}生成数据耗时：{datetime.now() - generate_start_time}")
 
         # 拼接sql语句
-        logger.info(f"2、正在拼接SQL语句...")
+        # 耗时计算
+        concatenate_start_time = datetime.now()
+        logger.info(f"[2]正在拼接插入表{db_table}的SQL语句...")
         # fields = [col[0] for col in cols if col[3].lower() in ("n", "no")] # 简单模式用
-        # 根据行数据中值不为空的字段名拼成字段列
-        fields = cols_data_generator()[1]
+        """拼接插入SQL语句函数"""
+        # columns_str = ",".join(column_name_list)
+        # placeholder = ",".join(["?" for _ in range(len(column_name_list))])
+        # sql_statement = "INSERT INTO " + self.dst_db_schema + "." + db_table + f" ({columns_str}) " + " VALUES " + f"({placeholder})"
+        sql_statement = db_instance.concatenate_insert_sql(self.dst_db_schema, db_table, column_name_list) # TODO 这里刚修改需要验证
 
-        fields_str = ",".join(fields)
-        placeholder = ",".join(["?" for _ in range(len(fields))])
-        sql_statement = "INSERT INTO " + self.dst_db_schema + "." + db_table + f" ({fields_str}) " + " VALUES " + f"({placeholder})"
-        logger.debug(f"生成SQL语句成功：{sql_statement}")
+        logger.debug(f"拼接插入表{db_table}的SQL语句成功：{sql_statement}")
+        logger.info(f"插入表{db_table}的SQL语句拼接耗时：{datetime.now() - concatenate_start_time}")
 
         # 执行sql语句
-        logger.info(f"3、正在执行SQL语句...")
+        logger.info(f"[3]正在执行SQL语句...")
         result = db_instance.execute_batch(sql_statement, rows_data)
         if result:
             logger.info(f"执行SQL语句成功，表{db_table}共插入{len(rows_data)}条数据")
@@ -126,4 +146,5 @@ class DataIntegrator:
 
 if __name__ == "__main__":
     di = DataIntegrator()
-    di.task_run()
+    # di.task_run()
+    di.data_gen_insert("ExamRequest")

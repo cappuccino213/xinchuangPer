@@ -25,16 +25,26 @@ mockup.decimal_max = 200.0
 
 # 目标数据库配置
 [DestinationDataBase]
-db.driver = "dm" # 数据驱动类型 mssql,mysql,kingbase,dm
-db.host = "192.168.1.35"
-db.port = 5236
-db.user = "SYSDBA"
-db.password = "123456789"
-db.dbname = "IMCIS" # 根据实际情况填写，某些数据库不需要填写
-#db.tables = ["UserMst","UserRoleMst"]
-#db.tables = ["ExamResult"]
+#db.driver = "dm" # 数据驱动类型 mssql,mysql,kingbase,dm
+#db.host = "192.168.1.35"
+#db.port = 5236
+#db.user = "SYSDBA"
+#db.password = "123456789"
+#db.dbname = "IMCIS" # 根据实际情况填写，某些数据库不需要填写
+#db.dbschema = "IMCIS" # 根据实际情况填写，某些数据库不需要填写
+#db.tables = ["ExamRequest"]
 #db.tables = ["Visit"]
-db.tables = ["PatientIndex","Document","DocumentInService"]
+#db.tables = ["ExamRequest","ExamResult","PatientIndex","Document","DocumentInService"]
+
+db.driver = "kingbase" # 数据驱动类型 mssql,mysql,kingbase,dm
+db.host = "192.168.1.35"
+db.port = 54321
+db.user = "system"
+db.password = "123456789"
+db.dbname = "imcis_per3" # 根据实际情况填写，某些数据库不需要填写
+db.dbschema = "dbo" # 根据实际情况填写，某些数据库不需要填写
+#db.tables = ["UserMst","UserRoleMst"]
+db.tables = ["ExamRequest"]
 
 
 # 任务设置
@@ -43,19 +53,19 @@ db.tables = ["PatientIndex","Document","DocumentInService"]
 DataSize = 1
 
 # 线程
-IfMultiThread = true
+IfMultiThread = false
 # 线程数
-ThreadNum = 10
+#ThreadNum = 10
 
 
 
 # 日志设置
 [Log]
 # 输出方式
-Output = "file" # console or file
-#Output = "console" # console or file
+#Output = "file" # console or file
+Output = "console" # console or file
 # 日志文件路径（当Output=file时生效）
-FilePath = "./logs/generate_data.log"
+FilePath = "./logs/generate_data-insert-10k-ExamRequest.log"
 # 日志级别
 Level = "DEBUG" # DEBUG,INFO,WARN,ERROR,FATAL,CRITICAL
 # 日志文件大小（当Output=file时生效）
