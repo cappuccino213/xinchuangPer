@@ -36,13 +36,16 @@ class KingBase:
     # 拼接插入sql语句
     @staticmethod
     def concatenate_insert_sql(db_schema, table_name, column_list):
+        # 列名需要加引号
+        column_list = [f'"{column}"' for column in column_list]
         columns_str = ",".join(column_list)
         placeholder = ",".join(["%s"] * len(column_list))
-        sql_statement = f"INSERT INTO {db_schema}.{table_name} ({columns_str}) VALUES ({placeholder})"
+        # sql_statement = f"INSERT INTO {db_schema}.{table_name} ({columns_str}) VALUES ({placeholder})"
+        sql_statement = "INSERT INTO "+f'"{db_schema}"."{table_name}"'+ f" ({columns_str}) " + f"VALUES ({placeholder})"
         logger.debug(sql_statement)
         return sql_statement
 
-    def execute_batch_params(self, sql, sequence_of_params):
+    def execute_batch(self, sql, sequence_of_params):
         # 执行耗时计算
         execute_begin_time = datetime.now()
         # 确保参数非空，以处理边界条件

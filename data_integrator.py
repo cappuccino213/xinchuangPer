@@ -32,7 +32,7 @@ class DataIntegrator:
         :return:
         """
         # 建立数据库连接
-        driver_type = self.dst_db_config.get("driver_type")
+        driver_type = self.dst_db_config.get("driver")
         if driver_type == "dm":
             db_instance = DM(self.dst_db_config.get("user"),
                              self.dst_db_config.get("password"),
@@ -54,8 +54,9 @@ class DataIntegrator:
         cols = db_instance.get_table_structure(self.dst_db_schema, db_table)
 
         # 生成单条数据函数
-        def cols_data_generator(table_structure,mockup_instance):
+        def cols_data_generator(table_structure, mockup_instance):
             """
+            :db_type:数据库类型
             :table_structure: 表结构
             :return: 生成数据行，待插入的数据列名
             """
@@ -111,7 +112,7 @@ class DataIntegrator:
         # columns_str = ",".join(column_name_list)
         # placeholder = ",".join(["?" for _ in range(len(column_name_list))])
         # sql_statement = "INSERT INTO " + self.dst_db_schema + "." + db_table + f" ({columns_str}) " + " VALUES " + f"({placeholder})"
-        sql_statement = db_instance.concatenate_insert_sql(self.dst_db_schema, db_table, column_name_list) # TODO 这里刚修改需要验证
+        sql_statement = db_instance.concatenate_insert_sql(self.dst_db_schema, db_table, column_name_list)
 
         logger.debug(f"拼接插入表{db_table}的SQL语句成功：{sql_statement}")
         logger.info(f"插入表{db_table}的SQL语句拼接耗时：{datetime.now() - concatenate_start_time}")

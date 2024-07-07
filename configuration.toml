@@ -40,7 +40,7 @@ db.driver = "kingbase" # 数据驱动类型 mssql,mysql,kingbase,dm
 db.host = "192.168.1.35"
 db.port = 54321
 db.user = "system"
-db.password = "123456789"
+db.password = "TomTaw@HZ"
 db.dbname = "imcis_per3" # 根据实际情况填写，某些数据库不需要填写
 db.dbschema = "dbo" # 根据实际情况填写，某些数据库不需要填写
 #db.tables = ["UserMst","UserRoleMst"]
@@ -50,10 +50,10 @@ db.tables = ["ExamRequest"]
 # 任务设置
 [Task]
 # 每张表生成数据量
-DataSize = 1
+DataSize = 10000
 
 # 线程
-IfMultiThread = false
+IfMultiThread = true
 # 线程数
 #ThreadNum = 10
 
@@ -62,12 +62,12 @@ IfMultiThread = false
 # 日志设置
 [Log]
 # 输出方式
-#Output = "file" # console or file
-Output = "console" # console or file
+Output = "file" # console or file
+#Output = "console" # console or file
 # 日志文件路径（当Output=file时生效）
-FilePath = "./logs/generate_data-insert-10k-ExamRequest.log"
+FilePath = "./logs/kingbase-insert-10k-ExamRequest.log"
 # 日志级别
-Level = "DEBUG" # DEBUG,INFO,WARN,ERROR,FATAL,CRITICAL
+Level = "INFO" # DEBUG,INFO,WARN,ERROR,FATAL,CRITICAL
 # 日志文件大小（当Output=file时生效）
 FileSize = 0 # 当FileSize=0时，日志的覆盖（w）才会触发，其他情况日志都会追加
 # 日志文件保留天数
