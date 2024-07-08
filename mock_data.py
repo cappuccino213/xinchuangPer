@@ -33,6 +33,7 @@ class MockData:
         self.person = Person(locale=Locale.ZH)
         self.generic = mimesis.Generic(locale=Locale.ZH)
 
+    # 将字段名转换为小写
     @staticmethod
     def _lower_column_name(column_name):
         """为了避免重复调用.lower()，缓存结果"""
@@ -40,7 +41,7 @@ class MockData:
             raise ValueError("column_name must be a string")
         return column_name.lower()
 
-    # varchar生成器
+    """数据类型mock，_advanced表示带有一些业务逻辑的高级方法"""
     def generate_varchar(self, column_length):
         if column_length == 36:
             return str(uuid.uuid4()).upper()
@@ -53,65 +54,9 @@ class MockData:
     def generate_int(self):
         return random.randint(0, self.int_max)
 
-    # 增加业务逻辑的高级生成器，可以根据实际目标数据库的需求，进行扩展
-    # def generate_varchar_advanced(self, column_name, column_length, column_is_nullable):
-    #     mimesis_gen = mimesis.Generic(Locale.ZH)
-    #     mimesis_person = Person(Locale.ZH)
-    #     lower_column_name = self._lower_column_name(column_name)
-    #     if lower_column_name == "sex":
-    #         return random.choice(["男", "女"])
-    #     elif lower_column_name == "ageunit":
-    #         return "岁"
-    #     elif lower_column_name.endswith("name"):
-    #         # 字段中带name的字段，有些字段需要特殊处理，其他按姓名处理
-    #         specific_names = {
-    #             "organization":"哈尔滨市第二医院",
-    #             "requestorg":"申请机构",
-    #             "requestdept":"申请科室"
-    #         }
-    #         return specific_names.get(lower_column_name, mimesis_gen.person.last_name() + mimesis_gen.person.first_name())
-    #         # if lower_column_name.startswith("organization"):
-    #         #     return "哈尔滨市第二医院"
-    #         # elif lower_column_name.startswith("requestorg"):
-    #         #     return "申请机构"
-    #         # elif lower_column_name.startswith("requestdept"):
-    #         #     return "申请科室"
-    #         # else:
-    #         #     # return mimesis_gen.person.full_name()
-    #         #     return mimesis_gen.person.last_name() + mimesis_gen.person.first_name()
-    #     elif lower_column_name.endswith("uid"):
-    #         # 字段中带有uuid的字段，有些字段需要特殊处理，其他按uuid处理
-    #         if column_name.lower().startswith(("service", "media", "resultservice", "study")):
-    #             return "00000000-0000-0000-0000-000000000000"
-    #         else:
-    #             return str(uuid.uuid4()).upper()
-    #     elif lower_column_name in ["patientmasterid", "businessid", "visitid"]:
-    #         return str(uuid.uuid4())
-    #     elif lower_column_name == "patientclass":
-    #         return random.choice(["门诊", "住院", "急诊", "体检"])
-    #     elif lower_column_name == "servicesectid":
-    #         return random.choice(["CT", "MR", "DR", "CR", "XA", "MG", "RF", "US"])
-    #     elif lower_column_name == "organizationid":
-    #         return "QWYHZYFAZX"
-    #     elif lower_column_name == "account":
-    #         return mimesis_gen.person.username(mask="l")
-    #     elif lower_column_name in ["patientid", "accessionnumber", "medrecno"]:
-    #         return random.randint(0, self.int_max)
-    #     elif lower_column_name in ("birthday", "birthdate", "birth"):
-    #         return mimesis_person.birthdate(min_year=1970, max_year=2023)
-    #     elif lower_column_name == "resultstatuscode":
-    #         return random.choice(["3050", "3080", "3090"])
-    #     elif lower_column_name in ["businesstype", "classcode"]:
-    #         return "Exam"
-    #     elif lower_column_name == "typecode":
-    #         return "ExamFilm"
-    #     # 如果匹配不到以上规则字段，根据该字段是否可为空，空则返回空字符串
-    #     elif column_is_nullable.lower() in ("no", "n"):
-    #         if column_length >= self.varchar_max_length:
-    #             column_length = self.varchar_max_length
-    #         return "".join(random.choice(string.ascii_letters + string.digits) for _ in range(int(column_length)))
-    #     else:
-    #         return ""
+    # text
+    def generate_text(self):
+        return self.generic.text.text()  # 默认是5个句子
 
     def generate_varchar_advanced(self, column_name, column_length, column_is_nullable):
         # 将字段名转换为小写
@@ -148,7 +93,7 @@ class MockData:
 
         elif nullable_check and column_length > 0:
             return "".join(random.choice(string.ascii_letters + string.digits) for _ in
-                           range(min(column_length, self.int_max)))
+                           range(min(int(column_length), self.int_max)))  # 避免小数时的长度不是整数
         else:
             return ""
 
@@ -172,7 +117,8 @@ class MockData:
             return 0
 
     def generate_decimal_advanced(self, column_type):
-        if column_type.lower() in ("decimal", 'numeric', "float", "double"):
+        lower_column_type = self._lower_column_name(column_type)
+        if lower_column_type in ("decimal", 'numeric', "float", "double"):
             return random.randint(0, self.decimal_max)
         else:
             return 0.0
@@ -189,7 +135,7 @@ class MockData:
         else:
             return ""
 
-    # 数据生成器
+    """数据行生成器"""
     def data_generator_simple(self, column_type, column_length):
         data_generators = {
             "varchar": lambda: self.generate_varchar(column_length),
@@ -206,7 +152,8 @@ class MockData:
             "datetime": lambda: self.generic.datetime.datetime().strftime("%Y-%m-%d %H:%M:%S"),
             "time": lambda: self.generic.datetime.time().strftime("%H:%M:%S"),
             "timestamp": lambda: self.generic.datetime.datetime().strftime("%Y-%m-%d %H:%M:%S"),
-            "timestamp without time zone": lambda: self.generate_time_advanced("timestamp")
+            "timestamp without time zone": lambda: self.generate_time_advanced("timestamp"),
+            "text": lambda: self.generate_text()
         }
         # 获取数据生成函数
         data_gen_func = data_generators.get(column_type.lower())
@@ -228,7 +175,8 @@ class MockData:
             "datetime": lambda: self.generate_time_advanced("datetime"),
             "time": lambda: self.generate_time_advanced("time"),
             "timestamp": lambda: self.generate_time_advanced("timestamp"),
-            "timestamp without time zone": lambda: self.generate_time_advanced("timestamp")
+            "timestamp without time zone": lambda: self.generate_time_advanced("timestamp"),
+            "text": lambda: self.generate_text()
         }
 
         data_gen_func = data_generators.get(column_type.lower())
@@ -245,4 +193,5 @@ class SourceData:
 
 
 if __name__ == "__main__":
-    pass
+    md = MockData()
+    logger.info(md.generate_text())
