@@ -8,12 +8,25 @@ import threading
 from datetime import datetime
 
 from config import GLOBAL_CONFIG
-from db_drivers.dm import DM
-from db_drivers.kingbase import KingBase
+from db_drivers.dm8 import DM8
+from db_drivers.kingbasev8 import KingBaseV8
 from log_config import logger
 from mock_data import MockData
 
 
+# 数据库工厂类，提高可扩展性，之后有新增数据库直接修改此处即可
+class DataBaseFactory:
+    @staticmethod
+    def create_database(driver_type: str, config: dict):
+        if driver_type == "dm":
+            return DM8(config["host"], config["port"],config["user"], config["password"])
+        elif driver_type == "kingbase":
+            return KingBaseV8(config["host"], config["port"], config["user"], config["password"], config["dbname"])
+        else:
+            logger.error(f"暂不支持的数据库类型：{driver_type}，如需添加，请联系作者")
+
+
+# 数据集成类
 class DataIntegrator:
     def __init__(self):
         # 数据源配置
@@ -33,22 +46,7 @@ class DataIntegrator:
         """
         # 建立数据库连接
         driver_type = self.dst_db_config.get("driver")
-        if driver_type == "dm":
-            db_instance = DM(self.dst_db_config.get("user"),
-                             self.dst_db_config.get("password"),
-                             self.dst_db_config.get("host"),
-                             self.dst_db_config.get("port"))
-        elif driver_type == "kingbase":
-            db_instance = KingBase(self.dst_db_config.get("host"),
-                                   self.dst_db_config.get("port"),
-                                   self.dst_db_config.get("user"),
-                                   self.dst_db_config.get("password"),
-                                   self.dst_db_config.get("dbname"))
-        else:  # TODO 替换成工厂模式
-            db_instance = DM(self.dst_db_config.get("user"),
-                             self.dst_db_config.get("password"),
-                             self.dst_db_config.get("host"),
-                             self.dst_db_config.get("port"))
+        db_instance = DataBaseFactory.create_database(driver_type, self.dst_db_config)
 
         # 解析表字段
         cols = db_instance.get_table_structure(self.dst_db_schema, db_table)
@@ -109,9 +107,6 @@ class DataIntegrator:
         logger.info(f"[2]正在拼接插入表{db_table}的SQL语句...")
         # fields = [col[0] for col in cols if col[3].lower() in ("n", "no")] # 简单模式用
         """拼接插入SQL语句函数"""
-        # columns_str = ",".join(column_name_list)
-        # placeholder = ",".join(["?" for _ in range(len(column_name_list))])
-        # sql_statement = "INSERT INTO " + self.dst_db_schema + "." + db_table + f" ({columns_str}) " + " VALUES " + f"({placeholder})"
         sql_statement = db_instance.concatenate_insert_sql(self.dst_db_schema, db_table, column_name_list)
 
         logger.debug(f"拼接插入表{db_table}的SQL语句成功：{sql_statement}")

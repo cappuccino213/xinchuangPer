@@ -54,6 +54,9 @@ class MockData:
     def generate_int(self):
         return random.randint(0, self.int_max)
 
+    def generate_smallint(self):
+        return random.randint(0,self.int_max/(10**4))
+
     # text
     def generate_text(self):
         return self.generic.text.text()  # 默认是5个句子
@@ -142,7 +145,7 @@ class MockData:
             "bit": lambda: random.choice([0, 1]),
             "int": lambda: self.generate_int(),
             "integer": lambda: self.generate_int(),
-            "smallint": lambda: self.generate_int(),
+            "smallint": lambda: self.generate_smallint(),
             "tinyint": lambda: random.choice([0, 1]),
             "numeric": lambda: self.generate_decimal_advanced(column_type),
             "decimal": lambda: self.generate_decimal_advanced(column_type),
@@ -157,7 +160,11 @@ class MockData:
         }
         # 获取数据生成函数
         data_gen_func = data_generators.get(column_type.lower())
-        return data_gen_func()
+        if data_gen_func:
+            return data_gen_func()
+        else:
+            logger.warn(f"未找到类型为{column_type.lower()}的生成函数，返回空字符")
+        return ""
 
     # 业务模式数据生成
     def data_generator_business(self, column_name, column_type, column_length, column_is_nullable):
