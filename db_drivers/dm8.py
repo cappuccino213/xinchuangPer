@@ -41,7 +41,7 @@ class DM8(DataBaseBase):
         column_str = ','.join(column_list)
         placeholders = ','.join(['?'] * len(column_list))
         sql_statement = f"INSERT INTO {db_schema}.{table_name} ({column_str}) VALUES ({placeholders})"
-        logger.info(sql_statement)
+        logger.debug(sql_statement)
         return sql_statement
 
     # 获取表结构

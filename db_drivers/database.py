@@ -43,6 +43,11 @@ class DataBaseBase:
 
     # 带参数的批量插入
     def execute_batch(self, sql, sequence_of_params):
+        """
+        :param sql:
+        :param sequence_of_params:
+        :return: 返回执行的耗时
+        """
         # 记录开始时间
         execute_start_time = datetime.now()
         # 确保参数非空，以处理边界条件
@@ -56,8 +61,9 @@ class DataBaseBase:
             # 使用参数化查询避免SQL注入攻击
             cursor.executemany(sql, sequence_of_params)
             conn.commit()
-            logger.info(f"【批量插入数据成功，耗时：{datetime.now() - execute_start_time}】")
-            return True
+            operate_time = datetime.now() - execute_start_time
+            logger.info(f"【数据库executemany操作成功，耗时：{operate_time}】")
+            return operate_time
         except Exception as e:
             conn.rollback()
             logger.error(f"数据库操作失败，错误信息：{e}")

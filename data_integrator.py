@@ -6,6 +6,7 @@
 """
 import threading
 from datetime import datetime
+from datetime import timedelta
 
 from config import GLOBAL_CONFIG
 from db_drivers.dm8 import DM8
@@ -19,7 +20,7 @@ class DataBaseFactory:
     @staticmethod
     def create_database(driver_type: str, config: dict):
         if driver_type == "dm":
-            return DM8(config["host"], config["port"],config["user"], config["password"])
+            return DM8(config["host"], config["port"], config["user"], config["password"])
         elif driver_type == "kingbase":
             return KingBaseV8(config["host"], config["port"], config["user"], config["password"], config["dbname"])
         else:
@@ -39,10 +40,11 @@ class DataIntegrator:
         self.task_config = GLOBAL_CONFIG.get("Task")
 
     # 生成数据
-    def data_gen_insert(self, db_table):
+    def data_gen_insert(self, db_table, row_amount) -> timedelta:
         """
+        :param row_amount: 插入数据量
         :param db_table: 表名
-        :return:
+        :return:返回的是执行时间
         """
         # 建立数据库连接
         driver_type = self.dst_db_config.get("driver")
@@ -81,7 +83,8 @@ class DataIntegrator:
 
         # 生成指定数量的数据行，和数据列名
         rows_data = []  # 行数据
-        row_amount = self.task_config.get("DataSize")
+        # 获取插入数据量
+        # row_amount = self.task_config.get("DataSize")
         # 创建一个mock实例
         mock_data_instance = MockData()
         # 耗时计算
@@ -117,14 +120,58 @@ class DataIntegrator:
         result = db_instance.execute_batch(sql_statement, rows_data)
         if result:
             logger.info(f"执行SQL语句成功，表{db_table}共插入{len(rows_data)}条数据")
+            return result
 
     # 执行插入任务
+
+    # 根据分批次插入
+    def insert_in_batches(self, table_name, batch_size, insert_amount):
+        # 获取数据总量和批次数量
+        """
+        :param table_name: 表名称
+        :param batch_size: 每批数量
+        :param insert_amount: 插入总数量
+        :return:
+        """
+        # 计算获取批数
+        batch_num = int(insert_amount / batch_size)
+        if batch_num > 0:
+            """大于0执行分批插入"""
+            logger.info(f"开始分批次插入，数据总量：{insert_amount}，每批数量：{batch_size}，共{batch_num}批")
+            time_cost = timedelta()
+            for i in range(batch_num):
+                logger.info(f">>>>>>正在执行第{i + 1}批数据插入...")
+                insert_time = self.data_gen_insert(table_name, batch_size)
+                time_cost += insert_time
+            logger.info(f"表{table_name}分{batch_num}批插入{insert_amount}条数据完成，共计耗时{time_cost}")
+        else:
+            """小于等于0执行单次插入"""
+            logger.info(f"因数据总量{insert_amount}小于每批数量{batch_size}，不符合分批插入条件，执行单批插入...")
+            time_cost = self.data_gen_insert(table_name, insert_amount)
+            logger.info(f"表{table_name}插入{insert_amount}条数据完成，共计耗时{time_cost}")
+
+    # 定义线程函数
+
+    def thread_function(self, table_name):
+        insert_amount = self.task_config.get("DataSize")
+        batch_size = self.task_config.get("BatchSize")
+        logger.info(f"表{table_name}数据开始插入-线程ID:{threading.get_ident()}")
+        self.insert_in_batches(table_name, batch_size, insert_amount)
+
     def task_run(self):
+        # 获取任务参数
+        table_names = self.dst_db_tables
+        # insert_amount = self.task_config.get("DataSize")
+        # batch_size = self.task_config.get("BatchSize")
+        thread_switch = self.task_config.get("IfMultiThread")
+
         # 是否启用多线程
-        if self.task_config.get("IfMultiThread"):
+        if thread_switch:
             threads = []
-            for table in self.dst_db_tables:
-                threads.append(threading.Thread(target=self.thread_function, args=(table,)))
+            for table_name in table_names:
+                # 声明线程函数
+                # thread_function = threading.Thread(target=self.insert_in_batches, args=(self.,))
+                threads.append(threading.Thread(target=self.thread_function, args=(table_name,)))
             # 启动线程
             [t.start() for t in threads]
 
@@ -134,13 +181,8 @@ class DataIntegrator:
                 logger.info(f"任务开始执行...")
                 self.data_gen_insert(table)
 
-    # 线程id打印函数
-    def thread_function(self, table_name):
-        logger.info(f"表{table_name}数据开始插入-线程ID:{threading.get_ident()}")
-        self.data_gen_insert(table_name)
-
 
 if __name__ == "__main__":
     di = DataIntegrator()
     # di.task_run()
-    di.data_gen_insert("ExamRequest")
+    di.data_gen_insert("ExamRequest", 1000)

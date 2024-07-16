@@ -11,7 +11,7 @@ db.password = "postgres"
 db.dbname = "postgres"
 
 # 当为mockup类型时，mock数据配置，相当于数据来源于模拟数据
-mockup.model = "simple" # 简单（数据类型正确即可，只模拟非空字段）或业务模式（根据实际数据意义模拟数据），simple or business
+mockup.model = "business" # 简单（数据类型正确即可，只模拟非空字段）或业务模式（根据实际数据意义模拟数据），simple or business
 mockup.year = [2021,2023]
 mockup.age = [0,108]
 mockup.varchar_max_length=128 # 限制字符查长度，防止字符串过长生成的数据很大，影响性能
@@ -21,23 +21,24 @@ mockup.decimal_max = 200.0
 
 # 目标数据库配置
 [DestinationDataBase]
-db.driver = "kingbase" # 数据驱动类型 mssql,mysql,kingbase,dm
-db.host = "192.168.1.35"
-db.port = 54321
-db.user = "system"
-db.password = "TomTaw@HZ"
-db.dbname = "imcis_per3" # 根据实际情况填写，某些数据库不需要填写
-db.dbschema = "dbo" # 根据实际情况填写，某些数据库不需要填写
-#db.tables = ["ExamRequest"]
-db.tables = ["ExamRequest","ExamResult","PatientIndex","Document","DocumentInService"]
-
-#db.driver = "dm" # 数据驱动类型 mssql,mysql,kingbase,dm
+#db.driver = "kingbase" # 数据驱动类型 mssql,mysql,kingbase,dm
 #db.host = "192.168.1.35"
-#db.port = 5236
-#db.user = "SYSDBA"
-#db.password = "123456789"
-#db.dbname = "IMCIS" # 根据实际情况填写，某些数据库不需要填写
-#db.dbschema = "IMCIS" # 根据实际情况填写，某些数据库不需要填写
+#db.port = 54321
+#db.user = "system"
+#db.password = "TomTaw@HZ"
+#db.dbname = "imcis_per3" # 根据实际情况填写，某些数据库不需要填写
+#db.dbschema = "dbo" # 根据实际情况填写，某些数据库不需要填写
+#db.tables = ["ExamRequest"]
+#db.tables = ["ExamRequest","ExamResult","PatientIndex","Document","DocumentInService"]
+
+db.driver = "dm" # 数据驱动类型 mssql,mysql,kingbase,dm
+db.host = "192.168.1.35"
+db.port = 5236
+db.user = "SYSDBA"
+db.password = "123456789"
+db.dbname = "IMCIS"
+db.dbschema = "IMCIS"
+db.tables = ["ExamRequest"]
 #db.tables = ["ExamRequest","ExamResult","PatientIndex","Document","DocumentInService"]
 
 
@@ -45,7 +46,10 @@ db.tables = ["ExamRequest","ExamResult","PatientIndex","Document","DocumentInSer
 # 任务设置
 [Task]
 # 每张表生成数据量
-DataSize = 1
+DataSize = 1000
+
+# 每批数量
+BatchSize = 500
 
 # 线程
 IfMultiThread = true
@@ -63,7 +67,7 @@ Output = "console" # console or file
 # 日志文件路径（当Output=file时生效）
 FilePath = "./logs/generate-data"
 # 日志级别
-Level = "DEBUG" # DEBUG,INFO,WARN,ERROR,FATAL,CRITICAL
+Level = "INFO" # DEBUG,INFO,WARN,ERROR,FATAL,CRITICAL
 # 日志文件大小（当Output=file时生效）
 FileSize = 0 # 当FileSize=0时，日志的覆盖（w）才会触发，其他情况日志都会追加
 # 日志文件保留天数
