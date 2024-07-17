@@ -21,6 +21,35 @@ class DataBaseBase:
     def connect(self):
         raise NotImplementedError("子类必须实现该方法")
 
+    # 执行SQL语句，不带参数
+    def execute(self, sql):
+        """
+        :param sql:
+        :return: 返回结果和耗时
+        """
+        conn = None
+        cursor = None
+        # 记录开始时间
+        execute_start_time = datetime.now()
+        try:
+            conn = self.connect()
+            cursor = conn.cursor()
+            cursor.execute(sql)
+            conn.commit()
+            operate_time = datetime.now() - execute_start_time
+            logger.info(f"【数据库操作成功，耗时：{operate_time}】")
+            # rows = cursor.fetchall()
+            # result = [row for row in rows]
+            return cursor.fetchall(), operate_time
+        except Exception as e:
+            logger.error(f"数据库操作失败，错误信息：{e}")
+        # 关闭游标和连接
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
     # 执行SQL语句，带参数
     def execute_with_params(self, sql, params=None):
         conn = None

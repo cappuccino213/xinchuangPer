@@ -19,26 +19,26 @@ mockup.int_max =  10000000
 mockup.decimal_max = 200.0
 
 
-# 目标数据库配置
+# 目标数据库
 [DestinationDataBase]
-#db.driver = "kingbase" # 数据驱动类型 mssql,mysql,kingbase,dm
-#db.host = "192.168.1.35"
-#db.port = 54321
-#db.user = "system"
-#db.password = "TomTaw@HZ"
-#db.dbname = "imcis_per3" # 根据实际情况填写，某些数据库不需要填写
-#db.dbschema = "dbo" # 根据实际情况填写，某些数据库不需要填写
+db.driver = "kingbase" # 数据驱动类型 mssql,mysql,kingbase,dm
+db.host = "192.168.1.35"
+db.port = 54321
+db.user = "system"
+db.password = "TomTaw@HZ"
+db.dbname = "imcis_wuzhou" # 根据实际情况填写，某些数据库不需要填写 imcis_per3
+db.dbschema = "dbo" # 根据实际情况填写，某些数据库不需要填写
 #db.tables = ["ExamRequest"]
 #db.tables = ["ExamRequest","ExamResult","PatientIndex","Document","DocumentInService"]
 
-db.driver = "dm" # 数据驱动类型 mssql,mysql,kingbase,dm
-db.host = "192.168.1.35"
-db.port = 5236
-db.user = "SYSDBA"
-db.password = "123456789"
-db.dbname = "IMCIS"
-db.dbschema = "IMCIS"
-db.tables = ["ExamRequest"]
+#db.driver = "dm" # 数据驱动类型 mssql,mysql,kingbase,dm
+#db.host = "192.168.1.35"
+#db.port = 5236
+#db.user = "SYSDBA"
+#db.password = "123456789"
+#db.dbname = "IMCIS"
+#db.dbschema = "IMCIS"
+#db.tables = ["ExamRequest"]
 #db.tables = ["ExamRequest","ExamResult","PatientIndex","Document","DocumentInService"]
 
 
@@ -62,10 +62,11 @@ IfMultiThread = true
 # 日志设置
 [Log]
 # 输出方式
-#Output = "file" # console or file
-Output = "console" # console or file
+Output = "file" # console or file
+#Output = "console" # console or file
 # 日志文件路径（当Output=file时生效）
-FilePath = "./logs/generate-data"
+#FilePath = "./logs/generate-data"
+FilePath = "./logs/per-test-kingbase"
 # 日志级别
 Level = "INFO" # DEBUG,INFO,WARN,ERROR,FATAL,CRITICAL
 # 日志文件大小（当Output=file时生效）
@@ -74,4 +75,360 @@ FileSize = 0 # 当FileSize=0时，日志的覆盖（w）才会触发，其他情
 FileCount = 7
 # 日志追加方式
 AppendType = "a" # a or w, a表示追加，w表示覆盖
+
+# 测试数据
+[test_cases]
+
+# 查询性能测试表数组，（表数组即一系列具有相同结构的表）
+[[test_cases.query_per_test]]
+stage_name = "统计查询结果数量"
+
+kingbase_query = """SELECT COUNT(1) FROM (SELECT "st1"."ExamUID","st1"."PatientID","st1"."PIDAssigningAuthority","st1"."PatientMasterID","st1"."PatientClass","st1"."VisitUID","st1"."OrderUID","st1"."OrganizationID","st1"."PlacerOrderNO","st1"."PlacerAssigningAuthority","st1"."PlacerOrderDetailNO","st1"."FillerOrderNO","st1"."FillerAssigningAuthority","st1"."FillerPatientID","st1"."AccessionNumber","st1"."ServiceID","st1"."ServiceCodeScheme","st1"."ServiceText","st1"."ServiceIDInsur","st1"."ServiceSectID","st1"."ProcedureID","st1"."ProcedureName","st1"."ProviderID","st1"."ProviderName","st1"."ProviderPhone","st1"."RequestDeptID","st1"."RequestDeptName","st1"."RequestOrgID","st1"."RequestOrgName","st1"."RequestedDate","st1"."Reason","st1"."Attention","st1"."Symptom","st1"."AdverseReaction","st1"."ClinicDiagnosis","st1"."RelevantClinicalInfo","st1"."FastingFlag","st1"."TransportationMode","st1"."RegTime","st1"."RegisterID","st1"."RegisterName","st1"."ExamDeptID","st1"."ExamDeptName","st1"."ExamDate","st1"."ExamEndDate","st1"."ExamLocation","st1"."ExamEquipmentID","st1"."ExamEquipment","st1"."EquipmentModel","st1"."ExamMethod","st1"."StudyInstanceUID","st1"."TechnicianID","st1"."TechnicianName","st1"."ResultAssistantID","st1"."ResultAssistantName","st1"."ResultPrincipalID","st1"."ResultPrincipalName","st1"."ResultReviseID","st1"."ResultReviseName","st1"."PreliminaryDate","st1"."AuditDate","st1"."ReviseDate","st1"."ResultDate","st1"."ResultOrganizationID","st1"."ResultServiceCenterUID","st1"."ResultStatus","st1"."ResultStatusCode","st1"."ResultPrintCount","st1"."ResultPrintTime","st1"."AbnormalFlags","st1"."CriticalValue","st1"."InfectionName","st1"."PrivacyLevel","st1"."PrivacyLevelExt","st1"."Charges","st1"."Payments","st1"."PaymentsFlag","st1"."FilmCount","st1"."FilmNeed","st1"."HasImage","st1"."HasReport","st1"."ImageLocation","st1"."ConsultStatus","st1"."ConsultRequestDate","st1"."ConsultEndDate","st1"."LastUpdateDate","st1"."DataSource","st1"."LockFlag","st1"."LockUserUID","st1"."LockReason","st1"."InWritingUserUID","st1"."MessageCount","st1"."UnProcessWorkflowCount","st1"."PushState","st1"."DeleteFlag","st1"."GroupID","st1"."ResultSelfPrintCount","st1"."CareWorkerID","st1"."CareWorkerName","st1"."EscortResultStatus","st1"."DrugDose","st1"."MedicalRecord","st1"."PhysicalExam","st1"."RequestMemo","st1"."IdcasState","st1"."MultiDrugFastFlag","st1"."PriorityFlag","st1"."ProviderIDCardNO","st1"."Height","st1"."Weight","st1"."MetalFlag","st1"."OperationDate","st1"."SurgeryFindings","st1"."SurgeryExam","st1"."PastHistory","st1"."ClinicInfoType","st1"."RequestDocName","st1"."DigitalImageNeed","st1"."BusinessStatus","st1"."UploadFlag","st1"."ConsultationState","st1"."RegisterFlag","st1"."RegisterCDAUID","st1"."RegisterKOSUID","st1"."FilmPaymentsFlag","st1"."IsInterconnectData","st1"."PushFlag","st1"."ExamItemCode","st1"."ExamItemName","st1"."ResultStartDate","st1"."ResultEndDate","st1"."IfHasFilm","st1"."IfReportUpload","st1"."IfFilmUpload","st1"."IfImageUpload","st1"."TmpMediaUID","st1"."ImageSource" FROM "dbo"."ExamRequest" st1 Left JOIN "dbo"."PatientIndex" st3 ON (( "st1"."PIDAssigningAuthority" = "st3"."PIDAssigningAuthority" ) AND ( "st1"."PatientID" = "st3"."PatientID" ))  Left JOIN "dbo"."Visit" st4 ON ( "st1"."VisitUID" = "st4"."VisitUID" )  Left JOIN "dbo"."OrganizationMst" st5 ON ( "st1"."OrganizationID" = "st5"."OrganizationID" )   WHERE ( "st1"."DeleteFlag" = 0 )  AND  ("st1"."ExamDate" BETWEEN '2024/5/19 0:00:00' AND '2024/6/19 23:59:59')  AND ( "st1"."HasImage" =0)  AND ( "st1"."HasReport" =0)  AND "st1"."BusinessStatus" &4 != 4 ) CountTable"""
+
+dm_query = """
+SELECT COUNT
+	( 1 )
+FROM
+	(
+	SELECT
+		st1.ExamUID,
+		st1.PatientID,
+		st1.PIDAssigningAuthority,
+		st1.PatientMasterID,
+		st1.PatientClass,
+		st1.VisitUID,
+		st1.OrderUID,
+		st1.OrganizationID,
+		st1.PlacerOrderNO,
+		st1.PlacerAssigningAuthority,
+		st1.PlacerOrderDetailNO,
+		st1.FillerOrderNO,
+		st1.FillerAssigningAuthority,
+		st1.FillerPatientID,
+		st1.AccessionNumber,
+		st1.ServiceID,
+		st1.ServiceCodeScheme,
+		st1.ServiceText,
+		st1.ServiceIDInsur,
+		st1.ServiceSectID,
+		st1.ProcedureID,
+		st1.ProcedureName,
+		st1.ProviderID,
+		st1.ProviderName,
+		st1.ProviderPhone,
+		st1.RequestDeptID,
+		st1.RequestDeptName,
+		st1.RequestOrgID,
+		st1.RequestOrgName,
+		st1.RequestedDate,
+		st1.Reason,
+		st1.Attention,
+		st1.Symptom,
+		st1.AdverseReaction,
+		st1.ClinicDiagnosis,
+		st1.RelevantClinicalInfo,
+		st1.FastingFlag,
+		st1.TransportationMode,
+		st1.RegTime,
+		st1.RegisterID,
+		st1.RegisterName,
+		st1.ExamDeptID,
+		st1.ExamDeptName,
+		st1.ExamDate,
+		st1.ExamEndDate,
+		st1.ExamLocation,
+		st1.ExamEquipmentID,
+		st1.ExamEquipment,
+		st1.EquipmentModel,
+		st1.ExamMethod,
+		st1.StudyInstanceUID,
+		st1.TechnicianID,
+		st1.TechnicianName,
+		st1.ResultAssistantID,
+		st1.ResultAssistantName,
+		st1.ResultPrincipalID,
+		st1.ResultPrincipalName,
+		st1.ResultReviseID,
+		st1.ResultReviseName,
+		st1.PreliminaryDate,
+		st1.AuditDate,
+		st1.ReviseDate,
+		st1.ResultDate,
+		st1.ResultOrganizationID,
+		st1.ResultServiceCenterUID,
+		st1.ResultStatus,
+		st1.ResultStatusCode,
+		st1.ResultPrintCount,
+		st1.ResultPrintTime,
+		st1.AbnormalFlags,
+		st1.CriticalValue,
+		st1.InfectionName,
+		st1.PrivacyLevel,
+		st1.PrivacyLevelExt,
+		st1.Charges,
+		st1.Payments,
+		st1.PaymentsFlag,
+		st1.FilmCount,
+		st1.FilmNeed,
+		st1.HasImage,
+		st1.HasReport,
+		st1.ImageLocation,
+		st1.ConsultStatus,
+		st1.ConsultRequestDate,
+		st1.ConsultEndDate,
+		st1.LastUpdateDate,
+		st1.DataSource,
+		st1.LockFlag,
+		st1.LockUserUID,
+		st1.LockReason,
+		st1.InWritingUserUID,
+		st1.MessageCount,
+		st1.UnProcessWorkflowCount,
+		st1.PushState,
+		st1.DeleteFlag,
+		st1.GroupID,
+		st1.ResultSelfPrintCount,
+		st1.CareWorkerID,
+		st1.CareWorkerName,
+		st1.EscortResultStatus,
+		st1.DrugDose,
+		st1.MedicalRecord,
+		st1.PhysicalExam,
+		st1.RequestMemo,
+		st1.IdcasState,
+		st1.MultiDrugFastFlag,
+		st1.PriorityFlag,
+		st1.ProviderIDCardNO,
+		st1.Height,
+		st1.Weight,
+		st1.MetalFlag,
+		st1.OperationDate,
+		st1.SurgeryFindings,
+		st1.SurgeryExam,
+		st1.PastHistory,
+		st1.ClinicInfoType,
+		st1.RequestDocName,
+		st1.DigitalImageNeed,
+		st1.BusinessStatus,
+		st1.UploadFlag,
+		st1.ConsultationState,
+		st1.RegisterFlag,
+		st1.RegisterCDAUID,
+		st1.RegisterKOSUID,
+		st1.FilmPaymentsFlag,
+		st1.IsInterconnectData,
+		st1.PushFlag,
+		st1.ExamItemCode,
+		st1.ExamItemName,
+		st1.ResultStartDate,
+		st1.ResultEndDate,
+		st1.IfHasFilm,
+		st1.IfReportUpload,
+		st1.IfFilmUpload,
+		st1.IfImageUpload,
+		st1.TmpMediaUID,
+		st1.ImageSource
+	FROM
+		IMCIS.ExamRequest st1
+		LEFT JOIN IMCIS.PatientIndex st3 ON ( ( st1.PIDAssigningAuthority = st3.PIDAssigningAuthority ) AND ( st1.PatientID = st3.PatientID ) )
+		LEFT JOIN IMCIS.Visit st4 ON ( st1.VisitUID = st4.VisitUID )
+		LEFT JOIN IMCIS.OrganizationMst st5 ON ( st1.OrganizationID = st5.OrganizationID )
+	WHERE
+		( st1.DeleteFlag = 0 )
+		AND ( st1.ExamDate BETWEEN '2024/5/19 0:00:00' AND '2024/6/19 23:59:59' )
+		AND ( st1.HasImage = 0 )
+		AND ( st1.HasReport = 0 )
+		AND st1.BusinessStatus
+	& 4 != 4
+	) CountTable"""
+
+[[test_cases.query_per_test]]
+stage_name = "查询结果明细"
+
+kingbase_query="""SELECT * FROM (SELECT  "st3"."Name" AS "PatientName" , "st3"."Sex" AS "Gender" , "st4"."Age" AS "Age" , "st4"."AgeUnit" AS "AgeUnit" , "st3"."BirthDate" AS "BirthDay" , "st3"."IDCardNO" AS "IDCardNo" , "st1"."ServiceSectID" AS "ServiceSectID" , "st1"."ProcedureName" AS "ExamItem" , "st1"."ProcedureName" AS "CheckArea" , "st4"."MedRecNO" AS "MedRecNO" , "st4"."PatientClass" AS "PatientClass" , "st4"."VisitID" AS "VisitID" , "st4"."InPatientNO" AS "AlternateVisitID" , "st4"."OutPatientNO" AS "OutPatientID" , "st4"."PointOfCareID" AS "PointOfCareID" , "st4"."PointOfCare" AS "PointOfCare" , "st4"."Bed" AS "Bed" , "st5"."OrganizationName" AS "OrganizationName" , "st5"."OrganizationID" AS "OrganizationID" , "st3"."PIDAssigningAuthority" AS "PIDAssigningAuthority" , "st1"."RequestOrgName" AS "RequestOrgName" , "st1"."RequestDeptName" AS "RequestDept" , "st1"."ProviderName" AS "RequestDocName" , "st1"."RequestedDate" AS "RequestTime" , "st1"."RegTime" AS "RegTime" , "st1"."ExamEndDate" AS "ExamEndDate" , "st1"."ResultDate" AS "ResultDate" , "st1"."AuditDate" AS "AuditDate" , "st1"."ReviseDate" AS "ReviseDate" , "st1"."ExamDate" AS "ExamTime" , "st4"."PatientID" AS "PatientID" , "st1"."AccessionNumber" AS "AccessionNumber" , "st1"."AbnormalFlags" AS "AbnormalFlags" , "st1"."CriticalValue" AS "CriticalValue" , "st1"."ConsultStatus" AS "ConsultationStatus" , "st1"."ConsultRequestDate" AS "ConsultRequestDate" , "st1"."ConsultEndDate" AS "ConsultEndDate" , "st1"."HasImage" AS "IfHasImage" , "st1"."IfReportUpload" AS "IfReportUpload" , "st1"."IfFilmUpload" AS "IfFilmUpload" , "st1"."IfImageUpload" AS "IfImageUpload" , "st1"."ClinicDiagnosis" AS "ClinicDiagnosis" , "st1"."PlacerOrderNO" AS "PlacerOrderNO" , "st1"."Reason" AS "Reason" , "st3"."ContactPhoneNO" AS "ContactPhoneNO" , "st3"."InsuranceID" AS "InsuranceID" , "st1"."Symptom" AS "Symptom" , "st1"."PatientMasterID" AS "PatientMasterID" , "st1"."ExamUID" AS "ExamUID" , "st1"."ResultStatus" AS "ResultStatus" , "st1"."StudyInstanceUID" AS "StudyInstanceUID" , "st1"."ResultStatus" AS "ExamStatus" , "st1"."ResultStatusCode" AS "ExamCode" , "st1"."RelevantClinicalInfo" AS "OtherClinicalInfo" , "st1"."Attention" AS "Attention" , "st1"."ResultReviseName" AS "ResultReviseName" , "st1"."DigitalImageNeed" AS "Digitalimageneed" , "st1"."HasReport" AS "IfHasReport" , "st1"."ExamMethod" AS "ExamMethod" , "st4"."AgeAndUnit" AS "AgeAndUnit" , "st1"."LockFlag" AS "LockFlag" , "st1"."LockReason" AS "LockReason" , "st1"."UploadFlag" AS "ExamUploadFlag" , "st1"."PushFlag" AS "ExamPushFlag" , "st1"."IsInterconnectData" AS "IsInterconnectData" , "st1"."ResultPrintCount" AS "ResultPrintCount" , "st1"."ResultSelfPrintCount" AS "ResultSelfPrintCount" , "st1"."BusinessStatus" AS "BusinessStatus" , "st1"."ExamEquipment" AS "ExamEquipment" ,ROW_NUMBER() OVER(ORDER BY "st1"."ExamDate" DESC) AS RowIndex  FROM "dbo"."ExamRequest" "st1" Left JOIN "dbo"."PatientIndex" "st3"  ON (( "st1"."PIDAssigningAuthority" = "st3"."PIDAssigningAuthority" ) AND ( "st1"."PatientID" = "st3"."PatientID" ))  Left JOIN "dbo"."Visit" "st4"  ON ( "st1"."VisitUID" = "st4"."VisitUID" )  Left JOIN "dbo"."OrganizationMst" "st5" ON ( "st1"."OrganizationID" = "st5"."OrganizationID" )  WHERE ( "st1"."DeleteFlag" = 0 )  AND  ("st1"."ExamDate" BETWEEN '2024/5/19 0:00:00' AND '2024/6/19 23:59:59')   AND ( "st1"."HasImage" =0)  AND ( "st1"."HasReport" =0)  AND "st1"."BusinessStatus" &4 != 4 ) T WHERE RowIndex BETWEEN 1 AND 20"""
+
+dm_query = """SELECT
+	*
+FROM
+	(
+	SELECT
+		st3.Name AS PatientName,
+		st3.Sex AS Gender,
+		st4.Age AS Age,
+		st4.AgeUnit AS AgeUnit,
+		st3.BirthDate AS BirthDay,
+		st3.IDCardNO AS IDCardNo,
+		st1.ServiceSectID AS ServiceSectID,
+		st1.ProcedureName AS ExamItem,
+		st1.ProcedureName AS CheckArea,
+		st4.MedRecNO AS MedRecNO,
+		st4.PatientClass AS PatientClass,
+		st4.VisitID AS VisitID,
+		st4.InPatientNO AS AlternateVisitID,
+		st4.OutPatientNO AS OutPatientID,
+		st4.PointOfCareID AS PointOfCareID,
+		st4.PointOfCare AS PointOfCare,
+		st4.Bed AS Bed,
+		st5.OrganizationName AS OrganizationName,
+		st5.OrganizationID AS OrganizationID,
+		st3.PIDAssigningAuthority AS PIDAssigningAuthority,
+		st1.RequestOrgName AS RequestOrgName,
+		st1.RequestDeptName AS RequestDept,
+		st1.ProviderName AS RequestDocName,
+		st1.RequestedDate AS RequestTime,
+		st1.RegTime AS RegTime,
+		st1.ExamEndDate AS ExamEndDate,
+		st1.ResultDate AS ResultDate,
+		st1.AuditDate AS AuditDate,
+		st1.ReviseDate AS ReviseDate,
+		st1.ExamDate AS ExamTime,
+		st4.PatientID AS PatientID,
+		st1.AccessionNumber AS AccessionNumber,
+		st1.AbnormalFlags AS AbnormalFlags,
+		st1.CriticalValue AS CriticalValue,
+		st1.ConsultStatus AS ConsultationStatus,
+		st1.ConsultRequestDate AS ConsultRequestDate,
+		st1.ConsultEndDate AS ConsultEndDate,
+		st1.HasImage AS IfHasImage,
+		st1.IfReportUpload AS IfReportUpload,
+		st1.IfFilmUpload AS IfFilmUpload,
+		st1.IfImageUpload AS IfImageUpload,
+		st1.ClinicDiagnosis AS ClinicDiagnosis,
+		st1.PlacerOrderNO AS PlacerOrderNO,
+		st1.Reason AS Reason,
+		st3.ContactPhoneNO AS ContactPhoneNO,
+		st3.InsuranceID AS InsuranceID,
+		st1.Symptom AS Symptom,
+		st1.PatientMasterID AS PatientMasterID,
+		st1.ExamUID AS ExamUID,
+		st1.ResultStatus AS ResultStatus,
+		st1.StudyInstanceUID AS StudyInstanceUID,
+		st1.ResultStatus AS ExamStatus,
+		st1.ResultStatusCode AS ExamCode,
+		st1.RelevantClinicalInfo AS OtherClinicalInfo,
+		st1.Attention AS Attention,
+		st1.ResultReviseName AS ResultReviseName,
+		st1.DigitalImageNeed AS Digitalimageneed,
+		st1.HasReport AS IfHasReport,
+		st1.ExamMethod AS ExamMethod,
+		st4.AgeAndUnit AS AgeAndUnit,
+		st1.LockFlag AS LockFlag,
+		st1.LockReason AS LockReason,
+		st1.UploadFlag AS ExamUploadFlag,
+		st1.PushFlag AS ExamPushFlag,
+		st1.IsInterconnectData AS IsInterconnectData,
+		st1.ResultPrintCount AS ResultPrintCount,
+		st1.ResultSelfPrintCount AS ResultSelfPrintCount,
+		st1.BusinessStatus AS BusinessStatus,
+		st1.ExamEquipment AS ExamEquipment,
+		ROW_NUMBER ( ) OVER ( ORDER BY st1.ExamDate DESC ) AS RowIndex
+	FROM
+		IMCIS.ExamRequest st1
+		LEFT JOIN IMCIS.PatientIndex st3 ON ( ( st1.PIDAssigningAuthority = st3.PIDAssigningAuthority ) AND ( st1.PatientID = st3.PatientID ) )
+		LEFT JOIN IMCIS.Visit st4 ON ( st1.VisitUID = st4.VisitUID )
+		LEFT JOIN IMCIS.OrganizationMst st5 ON ( st1.OrganizationID = st5.OrganizationID )
+	WHERE
+		( st1.DeleteFlag = 0 )
+		AND ( st1.ExamDate BETWEEN '2024/5/19 0:00:00' AND '2024/6/19 23:59:59' )
+		AND ( st1.HasImage = 0 )
+		AND ( st1.HasReport = 0 )
+		AND st1.BusinessStatus & 4 != 4
+	) T
+WHERE
+	RowIndex BETWEEN 1
+	AND 20
+"""
+
+[[test_cases.query_per_test]]
+stage_name = "查询文字报告"
+kingbase_query="""SELECT "ResultSeq","ExamUID","ImagingFinding","ImagingDiagnosis","ResultStatus","ResultStatusCode","ReferencesRange","AbnormalFlags","ExamMethod","ExamDate","PreliminaryDate","AuditDate","ResultPrincipalID","ResultPrincipalName","ResultAssistantID","ResultAssistantName","LastUpdateDate","DeleteFlag","UploadFlag","UploadRetryTimes","UploadTime","BusinessStatus" FROM "dbo"."ExamResult"  WHERE ( "DeleteFlag" = 0 )  AND ( "ExamUID" = 'A57BFD4E-5A62-49F3-A204-AAED00F8BD5B' )"""
+dm_query = """SELECT
+	ResultSeq,
+	ExamUID,
+	ImagingFinding,
+	ImagingDiagnosis,
+	ResultStatus,
+	ResultStatusCode,
+	ReferencesRange,
+	AbnormalFlags,
+	ExamMethod,
+	ExamDate,
+	PreliminaryDate,
+	AuditDate,
+	ResultPrincipalID,
+	ResultPrincipalName,
+	ResultAssistantID,
+	ResultAssistantName,
+	LastUpdateDate,
+	DeleteFlag,
+	UploadFlag,
+	UploadRetryTimes,
+	UploadTime,
+	BusinessStatus
+FROM
+	IMCIS.ExamResult
+WHERE
+	( DeleteFlag = 0 )
+	AND ( ExamUID = 'A57BFD4E-5A62-49F3-A204-AAED00F8BD5B' )"""
+
+[[test_cases.query_per_test]]
+stage_name = "图文报告预览"
+kingbase_query="""SELECT  "st1"."BusinessType" AS "BusinessType" , "st1"."BusinessTime" AS "BusinessTime" , "st1"."ClassCode" AS "ClassCode" , "st1"."TypeCode" AS "TypeCode" , "st1"."MimeType" AS "MimeType" , "st1"."FileCreateTime" AS "FileCreateTime" , "st1"."FileCreateUserID" AS "FileCreateUserID" , "st1"."FileCreateUserName" AS "FileCreateUserName" , "st1"."OriginalFileName" AS "OriginalFileName" , "st1"."Title" AS "Title" , "st1"."UploadTime" AS "UploadTime" , "st1"."DicomInfo" AS "DicomInfo" , "st2"."FileRelativePath" AS "FileRelativePath" , "st3"."Name" AS "MediaName" , "st3"."Type" AS "PathType" , "st1"."FileUID" AS "FileUID" , "st3"."Path" AS "Path" , "st4"."PatientID" AS "PatientID" , "st4"."AccessionNumber" AS "AccessionNumber" , "st4"."ServiceSectID" AS "ServiceSectID" , "st4"."StudyInstanceUID" AS "StudyInstanceUID" , "st4"."ExamUID" AS "ExamUID" , "st4"."OrganizationID" AS "OrganizationID" , "st3"."CustomConfig" AS "CustomConfig" ,"st2"."FileCloudConfig" AS "FileCloudConfig" , "st4"."ResultStatusCode" AS "ResultStatusCode" , "st2"."MediaUID" AS "MediaUID"  FROM "dbo"."Document" st1 Left JOIN "dbo"."DocumentInService" st2  ON ( "st1"."FileUID" = "st2"."FileUID" )  Left JOIN "dbo"."MediaMst" st3  ON ( "st2"."MediaUID" = "st3"."MediaUID" )  Left JOIN "dbo"."ExamRequest" st4  ON ( "st1"."BusinessID" = "st4"."ExamUID" )   WHERE ( "st1"."DeleteFlag" = 0 )  AND  ("st1"."BusinessID" IN ('3CA7099C-3E67-466B-A2C7-AC7200C1994E'))   AND ( "st1"."TypeCode" = 'ExamResult' )ORDER BY "st1"."TypeCode" ASC,"st1"."FileCreateTime" ASC"""
+dm_query ="""SELECT
+	st1.TypeCode AS TypeCode,
+	st2.FileRelativePath AS FileRelativePath,
+	st3.Path AS Path,
+	st5.ImagingFinding AS ImagingFinding,
+	st5.ImagingDiagnosis AS ImagingDiagnosis,
+	st4.OrganizationID AS OrganizationID,
+	st3.CustomConfig AS CustomConfig,
+	st5.ExamUID AS ExamUID,
+	st3.Type AS PathType,
+	st2.FileCloudConfig AS FileCloudConfig,
+	st4.ResultStatusCode AS ResultStatusCode,
+	st4.ServiceSectID AS ServiceSectID
+FROM
+	IMCIS.Document st1
+	LEFT JOIN IMCIS.DocumentInService st2 ON ( st1.FileUID = st2.FileUID )
+	LEFT JOIN IMCIS.MediaMst st3 ON ( st2.MediaUID = st3.MediaUID )
+	LEFT JOIN IMCIS.ExamRequest st4 ON ( st1.BusinessID = st4.ExamUID )
+	LEFT JOIN IMCIS.ExamResult st5 ON ( st1.BusinessID = st5.ExamUID )
+WHERE
+	( ( st1.DeleteFlag = 0 ) AND ( st5.DeleteFlag = 0 ) )
+	AND ( st1.BusinessID IN ( '3CA7099C-3E67-466B-A2C7-AC7200C1994E' ) )
+ORDER BY
+	st1.UploadTime ASC
+"""
+
+
+[[test_cases.query_per_test]]
+
+stage_name = "获取检查文件"
+
+kingbase_query="""SELECT  "st1"."TypeCode" AS "TypeCode" , "st2"."FileRelativePath" AS "FileRelativePath" , "st3"."Path" AS "Path" , "st5"."ImagingFinding" AS "ImagingFinding" , "st5"."ImagingDiagnosis" AS "ImagingDiagnosis" , "st4"."OrganizationID" AS "OrganizationID" , "st3"."CustomConfig" AS "CustomConfig" , "st5"."ExamUID" AS "ExamUID" , "st3"."Type" AS "PathType" , "st2"."FileCloudConfig" AS "FileCloudConfig" , "st4"."ResultStatusCode" AS "ResultStatusCode" , "st4"."ServiceSectID" AS "ServiceSectID"  FROM "dbo"."Document" "st1" Left JOIN "dbo"."DocumentInService" "st2" ON ( "st1"."FileUID" = "st2"."FileUID" )  Left JOIN "dbo"."MediaMst" "st3"  ON ( "st2"."MediaUID" = "st3"."MediaUID" )  Left JOIN "dbo"."ExamRequest" "st4"  ON ( "st1"."BusinessID" = "st4"."ExamUID" )  Left JOIN "dbo"."ExamResult" "st5"  ON ( "st1"."BusinessID" = "st5"."ExamUID" )   WHERE (( "st1"."DeleteFlag" = 0 ) AND ( "st5"."DeleteFlag" = 0 ))  AND  ("st1"."BusinessID" IN ('3CA7099C-3E67-466B-A2C7-AC7200C1994E')) ORDER BY "st1"."UploadTime" ASC"""
+
+dm_query = """SELECT
+	st1.TypeCode AS TypeCode,
+	st2.FileRelativePath AS FileRelativePath,
+	st3.Path AS Path,
+	st5.ImagingFinding AS ImagingFinding,
+	st5.ImagingDiagnosis AS ImagingDiagnosis,
+	st4.OrganizationID AS OrganizationID,
+	st3.CustomConfig AS CustomConfig,
+	st5.ExamUID AS ExamUID,
+	st3.Type AS PathType,
+	st2.FileCloudConfig AS FileCloudConfig,
+	st4.ResultStatusCode AS ResultStatusCode,
+	st4.ServiceSectID AS ServiceSectID
+FROM
+	IMCIS.Document st1
+	LEFT JOIN IMCIS.DocumentInService st2 ON ( st1.FileUID = st2.FileUID )
+	LEFT JOIN IMCIS.MediaMst st3 ON ( st2.MediaUID = st3.MediaUID )
+	LEFT JOIN IMCIS.ExamRequest st4 ON ( st1.BusinessID = st4.ExamUID )
+	LEFT JOIN IMCIS.ExamResult st5 ON ( st1.BusinessID = st5.ExamUID )
+WHERE
+	( ( st1.DeleteFlag = 0 ) AND ( st5.DeleteFlag = 0 ) )
+	AND ( st1.BusinessID IN ( '3CA7099C-3E67-466B-A2C7-AC7200C1994E' ) )
+ORDER BY
+	st1.UploadTime ASC"""
 

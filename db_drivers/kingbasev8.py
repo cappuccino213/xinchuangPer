@@ -13,12 +13,13 @@ from log_config import logger
 class KingBaseV8(DataBaseBase):
     def __init__(self, host, port, user, password, dbname):
         super().__init__(host, port, user, password)
-        self.dbname = dbname # kingbasev8需要指定数据库名
+        self.dbname = dbname  # kingbasev8需要指定数据库名
 
     # 实现连接
     def connect(self):
         try:
-            conn = ksycopg2.connect(host=self.host, port=self.port, user=self.user, password=self.password,dbname=self.dbname)
+            conn = ksycopg2.connect(host=self.host, port=self.port, user=self.user, password=self.password,
+                                    dbname=self.dbname)
             return conn
         except Exception as e:
             logger.error(f"数据库连接失败：{e}")
@@ -53,6 +54,7 @@ AND table_name = %s
         table_structure = self.execute_with_params(sql, (schema, table_name))
         logger.debug(f"获取到模式{schema}的表{table_name}的结构为：{table_structure}")
         return table_structure
+
 
 if __name__ == "__main__":
     kb = KingBaseV8("192.168.1.35", 54321, "system", "TomTaw@HZ", "imcis_per3")
